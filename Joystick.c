@@ -26,8 +26,7 @@ these buttons for our use.
 
 #include "Joystick.h"
 
-extern uint8_t target;
-extern uint16_t command;
+extern ControllerState_t currentState;
 
 // Main entry point.
 void initJoystick(void) {
@@ -165,43 +164,50 @@ void HID_Task(void) {
 
 // Prepare the next report for the host.
 void GetNextReport(USB_JoystickReport_Input_t* const ReportData) {
+	uint16_t buttons;
+
 	/* Clear the report contents */
 	memset(ReportData, 0, sizeof(USB_JoystickReport_Input_t));
-	ReportData->LX = STICK_CENTER;
-	ReportData->LY = STICK_CENTER;
-	ReportData->RX = STICK_CENTER;
-	ReportData->RY = STICK_CENTER;
-	ReportData->HAT = HAT_CENTER;
-	ReportData->Button |= SWITCH_RELEASE;
 
-	switch(target) {
-		case Button:
-			ReportData->Button |= command;
-			break;
-		case LX:
-			ReportData->LX = command;
-			break;
-		case LY:
-			ReportData->LY = command;
-			break;
-		case RX:
-			ReportData->RX = command;
-			break;
-		case RY:
-			ReportData->RY = command;
-			break;
-		case HAT:
-			ReportData->HAT = command;
-			break;
-		case RELEASE:
-		default:
-			ReportData->LX = STICK_CENTER;
-			ReportData->LY = STICK_CENTER;
-			ReportData->RX = STICK_CENTER;
-			ReportData->RY = STICK_CENTER;
-			ReportData->HAT = HAT_CENTER;
-			ReportData->Button |= SWITCH_RELEASE;
-			break;
+	if (currentState.a) {
+		buttons |= SWITCH_A;
 	}
+	if (currentState.b) {
+		buttons |= SWITCH_B;
+	}
+	if (currentState.x) {
+		buttons |= SWITCH_X;
+	}
+	if (currentState.y) {
+		buttons |= SWITCH_Y;
+	}
+	if (currentState.l) {
+		buttons |= SWITCH_L;
+	}
+	if (currentState.r) {
+		buttons |= SWITCH_R;
+	}
+	if (currentState.zl) {
+		buttons |= SWITCH_ZL;
+	}
+	if (currentState.zr) {
+		buttons |= SWITCH_ZR;
+	}
+	if (currentState.l_stick) {
+		buttons |= SWITCH_LCLICK;
+	}
+	if (currentState.r_stick) {
+		buttons |= SWITCH_RCLICK;
+	}
+	if (currentState.home) {
+		buttons |= SWITCH_HOME;
+	}
+	if (currentState.capture) {
+		buttons |= SWITCH_CAPTURE;
+	}
+	ReportData->LX = currentState.lx;
+	ReportData->LY = currentState.ly;
+	ReportData->RX = currentState.rx;
+	ReportData->RY = currentState.ry;
+	ReportData->HAT = currentState.hat;
 }
-// vim: noexpandtab

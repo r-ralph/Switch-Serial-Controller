@@ -50,8 +50,48 @@
 #include <LUFA/Platform/Platform.h>
 
 #include "Descriptors.h"
-#include "Definitions.h"
 #include "Memory.h"
+
+// Type Defines
+// Enumeration for joystick buttons.
+typedef enum {
+	SWITCH_Y       = 1<<0,
+	SWITCH_B       = 1<<1,
+	SWITCH_A       = 1<<2,
+	SWITCH_X       = 1<<3,
+	SWITCH_L       = 1<<4,
+	SWITCH_R       = 1<<5,
+	SWITCH_ZL      = 1<<6,
+	SWITCH_ZR      = 1<<7,
+	SWITCH_SELECT  = 1<<8,
+	SWITCH_START   = 1<<9,
+	SWITCH_LCLICK  = 1<<10,
+	SWITCH_RCLICK  = 1<<11,
+	SWITCH_HOME    = 1<<12,
+	SWITCH_CAPTURE = 1<<13,
+} JoystickButtons_t;
+
+// Joystick HID report structure. We have an input and an output.
+typedef struct {
+	uint16_t Button; // 16 buttons; see JoystickButtons_t for bit mapping
+	uint8_t  HAT;    // HAT switch; one nibble w/ unused nibble
+	uint8_t  LX;     // Left  Stick X
+	uint8_t  LY;     // Left  Stick Y
+	uint8_t  RX;     // Right Stick X
+	uint8_t  RY;     // Right Stick Y
+	uint8_t  VendorSpec;
+} USB_JoystickReport_Input_t;
+
+// The output is structured as a mirror of the input.
+// This is based on initial observations of the Pokken Controller.
+typedef struct {
+	uint16_t Button; // 16 buttons; see JoystickButtons_t for bit mapping
+	uint8_t  HAT;    // HAT switch; one nibble w/ unused nibble
+	uint8_t  LX;     // Left  Stick X
+	uint8_t  LY;     // Left  Stick Y
+	uint8_t  RX;     // Right Stick X
+	uint8_t  RY;     // Right Stick Y
+} USB_JoystickReport_Output_t;
 
 // Function Prototypes
 // Setup all necessary hardware, including USB initialization.
