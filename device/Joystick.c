@@ -164,7 +164,7 @@ void HID_Task(void) {
 
 // Prepare the next report for the host.
 void GetNextReport(USB_JoystickReport_Input_t* const ReportData) {
-	uint16_t buttons;
+	uint16_t buttons = 0;
 
 	/* Clear the report contents */
 	memset(ReportData, 0, sizeof(USB_JoystickReport_Input_t));
@@ -205,6 +205,7 @@ void GetNextReport(USB_JoystickReport_Input_t* const ReportData) {
 	if (currentState.capture) {
 		buttons |= SWITCH_CAPTURE;
 	}
+	ReportData->Button = buttons;
 	ReportData->LX = currentState.lx;
 	ReportData->LY = currentState.ly;
 	ReportData->RX = currentState.rx;

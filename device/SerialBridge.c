@@ -47,8 +47,8 @@ extern ControllerState_t currentState;
 #define BIT_FLAG_BUTTON_CAPTURE (1<<13)
 #define FLAGGED(v, f) (v) & (f) ? 1 : 0
 
-char b[SERIAL_BUFFER_SIZE];
-uint8_t l = 0;
+char inputBuffer[SERIAL_BUFFER_SIZE];
+uint8_t inputBufferPoint = 0;
 
 void initSerialBridge() {
     Serial_Init(9600, false);
@@ -69,12 +69,12 @@ int clamp(int value, int min, int max) {
 }
 
 void parseLine(char *line) {
-	char raw_buttons[4];
+	char raw_buttons[5];
 	char raw_hat;
-	char raw_lx[2];
-	char raw_ly[2];
-	char raw_rx[2];
-	char raw_ry[2];
+	char raw_lx[3];
+	char raw_ly[3];
+	char raw_rx[3];
+	char raw_ry[3];
 	uint16_t buttons;
 	uint8_t hat;
 	uint8_t lx;
@@ -89,12 +89,18 @@ void parseLine(char *line) {
 	memcpy(raw_rx, line + 9, sizeof(char) * 2);
 	memcpy(raw_ry, line + 11, sizeof(char) * 2);
 
+	raw_buttons[4] = 0;
+	raw_lx[2] = 0;
+	raw_ly[2] = 0;
+	raw_rx[2] = 0;
+	raw_ry[2] = 0;
+
 	sscanf(raw_buttons, "%x", &buttons);
 	hat = clamp(raw_hat - '0', 0, 8);
-	sscanf(raw_lx, "%x", &lx);
-	sscanf(raw_ly, "%x", &ly);
-	sscanf(raw_rx, "%x", &rx);
-	sscanf(raw_ry, "%x", &ry);
+	lx = strtol(raw_lx, NULL, 16);
+	ly = strtol(raw_ly, NULL, 16);
+	rx = strtol(raw_rx, NULL, 16);
+	ry = strtol(raw_ry, NULL, 16);
 
 	currentState.a = FLAGGED(buttons, BIT_FLAG_BUTTON_A);
 	currentState.b = FLAGGED(buttons, BIT_FLAG_BUTTON_B);
@@ -118,14 +124,17 @@ void parseLine(char *line) {
 }
 
 ISR(USART1_RX_vect) {
-	char c = fgetc(stdin);
-	if (Serial_IsSendReady()) {
-		printf("%c", c);
-	}
+	char readChar = fgetc(stdin);
+	// if (Serial_IsSendReady()) {
+	// 	// echo
+	// 	printf("%c", readChar);
+	// }
 
-	b[l++] = c;
-	if (l == SERIAL_BUFFER_SIZE) {
-		parseLine(b);
-		l = 0;
+	if (readChar == '\r') {
+		parseLine(inputBuffer);
+		inputBufferPoint = 0;
+		memset(inputBuffer, 0, sizeof(inputBuffer));
+	} else if (readChar != '\n' && inputBufferPoint < SERIAL_BUFFER_SIZE) {
+		inputBuffer[inputBufferPoint++] = readChar;
 	}
 }
