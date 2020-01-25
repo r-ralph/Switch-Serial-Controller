@@ -1,24 +1,30 @@
-# Switch-Fightstick
-[![Thumbnail](https://i.imgur.com/cJLZUdhl.jpg)](https://twitter.com/ebith/status/954858876028907521)
-- [Xenoblade Chronicles 2](https://twitter.com/ebith/status/954858876028907521)
-- [Octopath Traveler](https://twitter.com/ebith/status/1079163336862818305)
+# Switch Serial Controller - device
+
+A device for manipulating Nintendo Switch via serial communication.
+
+Based on [ebith's PoC](https://github.com/ebith/Switch-Fightstick).
 
 ## Requirement
 - ATMega32U4 Board or see [shinyquagsire23/Switch-Fightstick's README](https://github.com/shinyquagsire23/Switch-Fightstick/blob/master/README.md)
 - USB to serial adapter
 - USB micro-b cable * 2
 
-## Usage
-[NintendoSwitchをPCから操作する - おいら屋ファクトリー](https://blog.feelmy.net/control-nintendo-switch-from-computer/)(in Japanese)
+## How to build
 
-### On MacOS
+### Make a device
+
+TBD
+
+### Build firmware and flush
+
 ```sh
-brew install avr-dude osx-cross/avr/avr-gcc
-git clone --recursive https://github.com/ebith/Switch-Fightstick.git
-cd Switch-Fightstick
-make
-avrdude -pm32u4 -cavr109 -D -P$(ls /dev/tty.usbmodem*) -b57600 -Uflash:w:Joystick.hex # need reset
+brew tap osx-cross/avr
+brew install avrdude avr-gcc
 
-pip3 install pyserial
-./example/rapid-fire-a-button.py /dev/tty.usbserial*
+git clone --recursive https://github.com/r-ralph/Switch-Serial-Controller.git
+cd Switch-Serial-Controller
+cd device
+
+make
+avrdude -pm32u4 -cavr109 -D -P$(ls /dev/tty.usbmodem*) -b57600 -Uflash:w:SwitchSerialController.hex # need reset
 ```
